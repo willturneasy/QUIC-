@@ -205,11 +205,11 @@ static int mosquitto__reconnect(struct mosquitto *mosq, bool blocking)
 	if(mosq->socks5_host){
 		rc = net__connect(mosq, mosq->socks5_host, mosq->socks5_port, mosq->bind_address, blocking);
 	}else
-#else
+#endif
 	{
 		rc = net__connect(mosq, mosq->host, mosq->port, mosq->bind_address, blocking);
 	}
-#endif
+
 
 	if(rc > 0){
 		mosquitto__set_state(mosq, mosq_cs_connect_pending);

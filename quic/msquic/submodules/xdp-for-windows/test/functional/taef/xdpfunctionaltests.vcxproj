@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{02D631DF-E2E7-4A6E-9773-94A45B19C367}</ProjectGuid>
+    <TargetName>xdpfunctionaltests</TargetName>
+    <UndockedType>dll</UndockedType>
+    <ImportEbpf>true</ImportEbpf>
+    <ImportWnt>true</ImportWnt>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(SolutionDir)src\xdp.cpp.props" />
+  <ItemGroup>
+    <ProjectReference Include="$(SolutionDir)test\common\lib\util\util.vcxproj">
+      <Project>{bdd99a80-0936-47b0-918d-04cf3b472fb0}</Project>
+    </ProjectReference>
+    <ProjectReference Include="$(SolutionDir)test\functional\lib\xdptests.vcxproj">
+      <Project>{b7c007da-b437-4ca5-896e-5cb5a5006d01}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="tests.cpp" />
+  </ItemGroup>
+  <ItemDefinitionGroup>
+    <PreBuildEvent>
+      <Command>
+        tracewpp.exe -odir:$(IntDir) -scan:$(SolutionDir)test\functional\inc\fntrace.h $(ProjectDir)*.cpp -p:xdpfntest -cfgdir:"$(WindowsSdkDir)bin\$(TargetPlatformVersion)\WppConfig\Rev1"
+      </Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <AdditionalIncludeDirectories>
+        $(SolutionDir)test\common\inc;
+        $(SolutionDir)test\functional\inc;
+        $(SolutionDir)test\functional\lib;
+        $(VCInstallDir)UnitTest\include;
+        %(AdditionalIncludeDirectories)
+      </AdditionalIncludeDirectories>
+      <UseFullPaths>true</UseFullPaths>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>
+        ntdll.lib;
+        onecore.lib;
+        iphlpapi.lib;
+        advapi32.lib;
+        $(WntLibPath)\fnsock_um.lib;
+        $(OutDir)\cxplat\bin\$(UndockedPlatConfig)\cxplat.lib;
+        %(AdditionalDependencies)
+      </AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(SolutionDir)src\xdp.targets" />
+  <Target Name="BuildCxPlat" BeforeTargets="PrepareForBuild">
+      <MSBuild Projects="$(SolutionDir)submodules\cxplat\src\lib\cxplat.user.vcxproj" Properties="UndockedOut=$(OutDir)cxplat\;UndockedSourceLink=false"/>
+  </Target>
+</Project>

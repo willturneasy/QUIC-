@@ -1,0 +1,43 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Version">
+    <!-- Defines the XDP version numbers -->
+    <XdpMajorVersion>1</XdpMajorVersion>
+    <XdpMinorVersion>1</XdpMinorVersion>
+    <XdpPatchVersion>0</XdpPatchVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <!-- Undocked project properties -->
+    <UndockedDir>$(SolutionDir)submodules\cxplat\submodules\undocked\</UndockedDir>
+    <UndockedOut>$(SolutionDir)artifacts\</UndockedOut>
+    <UndockedVersioning>false</UndockedVersioning>
+    <!-- PackageReferences for SourceLink implicitly include all .props and .targets files. -->
+    <UndockedSourceLink>false</UndockedSourceLink>
+    <!-- Work around nuget build error for native projects. -->
+    <ResolveNuGetPackages>false</ResolveNuGetPackages>
+    <HostPlatform>$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)</HostPlatform>
+    <XdpWdkVersion>10.0.26100.2161</XdpWdkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Platform)' != 'x64'">
+    <RestoreAdditionalProjectSources>$(SolutionDir)artifacts/nuget</RestoreAdditionalProjectSources>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- eBPF currently has separate packages for each architecture. -->
+    <PackageReference Include="eBPF-for-Windows" Version="0.18.0" GeneratePathProperty="true" Condition="'$(ImportEbpf)' == 'true' AND '$(Platform)' == 'x64'"/>
+    <PackageReference Include="eBPF-for-Windows.arm64" Version="0.20.0" GeneratePathProperty="true" Condition="'$(ImportEbpf)' == 'true' AND '$(Platform)' != 'x64'"/>
+    <PackageReference Include="eBPF-for-Windows.x64" Version="0.20.0" GeneratePathProperty="true" Condition="'$(ImportEbpf)' == 'true' AND '$(Platform)' != 'x64'"/>
+    <PackageReference Include="Microsoft.Build.Tasks.Git" Version="1.0.0" GeneratePathProperty="true" />
+    <PackageReference Include="Microsoft.SourceLink.AzureRepos.Git" Version="1.0.0" GeneratePathProperty="true" />
+    <PackageReference Include="Microsoft.SourceLink.Common" Version="1.0.0" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" />
+    <PackageReference Include="Microsoft.Windows.WDK.$(Platform)" Version="$(XdpWdkVersion)" Condition="'$(ImportWdk)' != 'false'" />
+    <PackageReference Include="Microsoft.Windows.WDK.$(HostPlatform)" Version="$(XdpWdkVersion)" Condition="'$(ImportWdk)' != 'false' AND '$(HostPlatform)' != '$(Platform)'" />
+    <PackageReference Include="win-net-test" Version="1.2.0" GeneratePathProperty="true" Condition="'$(ImportWnt)' == 'true'"/>
+  </ItemGroup>
+  <Import Project="$(UndockedDir)vs\windows.undocked.props" Condition="'$(ImportUndocked)' != 'false'" />
+  <PropertyGroup>
+    <WntPackagePath>$(Pkgwin-net-test)\</WntPackagePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Platform)' == 'x64'">
+    <EbpfHostBinPath>$(EbpfBinPath)</EbpfHostBinPath>
+  </PropertyGroup>
+</Project>

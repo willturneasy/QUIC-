@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{b7c007da-b437-4ca5-896e-5cb5a5006d01}</ProjectGuid>
+    <TargetName>xdptests</TargetName>
+    <UndockedType>lib</UndockedType>
+    <ImportEbpf>true</ImportEbpf>
+    <ImportWnt>true</ImportWnt>
+  </PropertyGroup>
+  <Import Project="$(SolutionDir)src\xdp.cpp.props" />
+  <ItemGroup>
+    <ClCompile Include="tests.cpp" />
+  </ItemGroup>
+  <ItemDefinitionGroup>
+    <PreBuildEvent>
+      <Command>
+        tracewpp.exe -odir:$(IntDir) -scan:$(SolutionDir)test\functional\inc\fntrace.h $(ProjectDir)*.cpp -p:xdpfntest -cfgdir:"$(WindowsSdkDir)bin\$(TargetPlatformVersion)\WppConfig\Rev1"
+      </Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <AdditionalIncludeDirectories>
+        $(SolutionDir)test\common\inc;
+        $(SolutionDir)test\functional\inc;
+        $(SolutionDir)test\functional\lwf\inc;
+        $(SolutionDir)test\functional\mp\inc;
+        $(SolutionDir)submodules\cxplat\inc;
+        $(SolutionDir)submodules\net-offloads\include;
+        $(SolutionDir)submodules\wil\include;
+        $(WntIncPath);
+        $(IntDir);
+        %(AdditionalIncludeDirectories)
+      </AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>
+        CX_PLATFORM_WINUSER;
+        UM_NDIS683=1;
+        %(PreprocessorDefinitions)
+      </PreprocessorDefinitions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <TreatSpecificWarningsAsErrors>4834</TreatSpecificWarningsAsErrors>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <Import Project="$(SolutionDir)src\xdp.targets" />
+</Project>
